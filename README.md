@@ -1,69 +1,53 @@
-# FALTA
+# APIs CEPs to Addresses
 
-* Fazer a consulta nas APIs:
-  * 'brasilapi v1': "https://brasilapi.com.br/api/cep/v1/{cep}" (FEITO)
-  * 'brasilapi v2': "https://brasilapi.com.br/api/cep/v2/{cep}"
-  * 'viacep': "https://viacep.com.br/ws/{cep}/json/"
-  * 'widenet': "https://cdn.apicep.com/file/apicep/{cep}.json"
-  
-  ```json5
-  // brasilapi v1
-  {
-  "cep": "89010025",
-  "state": "SC",
-  "city": "Blumenau",
-  "neighborhood": "Centro",
-  "street": "Rua Doutor Luiz de Freitas Melro",
-  "service": "viacep"
-  }
+Para atender a demanda de CEPs do job. Busca em 3 APIs gratuitas (com `fallbacks`) os endereços com base no CEP.
 
-  // brasilapi v2
-  {
-  "cep": "89010025",
-  "state": "SC",
-  "city": "Blumenau",
-  "neighborhood": "Centro",
-  "street": "Rua Doutor Luiz de Freitas Melro",
-  "service": "viacep",
-  "location": {
-    "type": "Point",
-    "coordinates": {
-      "longitude": "-49.0629788",
-      "latitude": "-26.9244749"
-      }
-    }
-  }
-  
-  // viacep
-  {
-  "cep": "01001-000",
-  "logradouro": "Praça da Sé",
-  "complemento": "lado ímpar",
-  "unidade": "",
-  "bairro": "Sé",
-  "localidade": "São Paulo",
-  "uf": "SP",
-  "estado": "São Paulo",
-  "regiao": "Sudeste",
-  "ibge": "3550308",
-  "gia": "1004",
-  "ddd": "11",
-  "siafi": "7107"
-  }
+* [brasilapi](https://brasilapi.com.br/)
+* [viacep](https://viacep.com.br/)
+* [apicep](https://apicep.com/api-de-consulta/)
 
-  // widenet
-  {
-  "status":200,
-  "code":"06233-030",
-  "state":"SP",
-  "city":"Osasco",
-  "district":"Piratininga",
-  "address":"Rua Paula Rodrigues"
-  }
+### Requisitos:
+
+* [Python 3.10](https://www.python.org/downloads/release/python-3100/)
+* [uv pkg manager](https://docs.astral.sh/uv/getting-started/installation/#installation-methods)
+* [Extensão do Jupyter no VSCode](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 
 
-  ```
+No terminal:
 
-* Fazer method em DBDataclass para JOIN entre o retorno do JS (UF, cidade, bairro...) e participantes.
+```
+git clone https://github.com/vihmalmsteen/ceps.git
+uv sync
+```
 
+### Do projeto:
 
+```
+ceps/
+├─ .vscode/
+│  └─ settings.json
+├─ src/
+│  ├─ datasets/
+│  ├─ python/
+│  │  ├─ classes/
+│  │  │  ├─ CallsClass.py
+│  │  │  └─ DBData.py
+│  │  └─ main.py
+│  └─ queries/
+│     ├─ select_ceps.sql
+│     ├─ select_editions.sql
+│     └─ select_participants.sql
+├─ .env-example
+├─ .gitignore
+├─ .python-version
+├─ main.ipynb
+├─ pyproject.toml
+├─ README.md
+└─ uv.lock
+```
+
+Arquivo principal é o `main.ipynb`. Basta executar as células do notebook e prosseguir conforme orientação. Fluxo:
+
+* Consulta o DB e retorna as bases, exportando-as para `datasets`;
+* Chama as APIs com `fallbacks` entre elas;
+* Une as informações e exporta para `datasets/results`
