@@ -1,15 +1,11 @@
 import os
 from time import sleep
-from dotenv import load_dotenv
 import requests
 from requests.exceptions import JSONDecodeError, RequestException, Timeout
 import pandas as pd
 from tqdm import tqdm
 from IPython.display import clear_output
 from tabulate import tabulate
-
-
-load_dotenv()
 
 
 class CallsClass:
@@ -184,9 +180,7 @@ class CallsClass:
         '''
         self.parsed_ceps_df = parsed_ceps_df
         self.url = self.brasilapi_url
-        if timeout != None:
-            self.timeout = timeout
-        self.timeout = self.default_timesleep
+        self.timeout = timeout if timeout is not None else self.default_timesleep
 
         brasilapi_df = pd.DataFrame({'cep': [],'state': [],'city': [],'neighborhood': [],
                                      'street': [],'service': []}, dtype='object')
@@ -399,16 +393,31 @@ class CallsClass:
 
                 try:
                     response = requests.get(self.bras_url.replace('replace_cep', replace_cep)).json()
+                    response['cep']
                 except:
+                    clear_output(wait=True)
                     ceps_errors_df.loc[0,'brasil api errors'] += 1
+                    print(tabulate(complete_api_df_logs, headers='keys', tablefmt='psql', showindex=False))
+                    print(tabulate(ceps_errors_df, headers='keys', tablefmt='psql', showindex=False))
                     try:
                         response = requests.get(self.via_url.replace('replace_cep', replace_cep)).json()
+                        response['cep']
                     except:
+                        clear_output(wait=True)
                         ceps_errors_df.loc[0, 'viacep errors'] += 1
+                        print(tabulate(complete_api_df_logs, headers='keys', tablefmt='psql', showindex=False))
+                        print(tabulate(ceps_errors_df, headers='keys', tablefmt='psql', showindex=False))
                         try:
                             response = requests.get(self.cep_url.replace('replace_cep', replace_cep)).json()
+                            response['cep']
                         except:
+                            clear_output(wait=True)
                             ceps_errors_df.loc[0, 'apicep errors'] += 1
+                            complete_api_df_logs.loc[0,'nok'] += 1
+                            print(tabulate(complete_api_df_logs, headers='keys', tablefmt='psql', showindex=False))
+                            print(tabulate(ceps_errors_df, headers='keys', tablefmt='psql', showindex=False))
+                            pbar.update()
+                            sleep(self.timeout)
                             continue
 
                 complete_api_df.loc[idx,'item_id'] = participant_id

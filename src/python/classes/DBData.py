@@ -1,14 +1,10 @@
 import os
-import dotenv
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 import pandas as pd
-from tabulate import tabulate
 from pprint import pprint
 from sqlalchemy.exc import ProgrammingError as SQLAlchemyProgrammingError, OperationalError as SQLAlchemyOperationalError
 from pymysql.err import ProgrammingError as PyMySQLProgrammingError, OperationalError as PyMySQLOperationalError
-
-
-dotenv.load_dotenv()
 
 
 class DBData:
@@ -26,11 +22,11 @@ class DBData:
             password=os.getenv('PASSWORD'), 
             database=os.getenv('DATABASE')
             ):
-        
-        self.host = host
-        self.user = user
-        self.password = password
-        self.database = database
+        load_dotenv()
+        self.host = host or os.getenv('HOST')
+        self.user = user or os.getenv('USER')
+        self.password = password or os.getenv('PASSWORD')
+        self.database = database or os.getenv('DATABASE')
         self.endpoint = f"mysql+pymysql://{user}:{password}@{host}:3306/{database}?charset=utf8mb4"
     
 
